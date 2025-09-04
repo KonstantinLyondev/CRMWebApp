@@ -1,0 +1,138 @@
+﻿@page
+@model CRMWebApp.Pages.Deals.DetailsModel
+@using CRMWebApp.Models
+
+@{
+    ViewData["Title"] = "Deal details";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Deal details</h1>
+
+    <div class="form-container">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">@Model.Deal.Title</dd>
+
+            <dt class="col-sm-3">Client</dt>
+            <dd class="col-sm-9">
+                <a asp-page="/Clients/Details" asp-route-id="@Model.Deal.ClientId">
+                    @(Model.Deal.Client?.Name ?? $"Client #{Model.Deal.ClientId}")
+                </a>
+            </dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                @{
+                    var badge = Model.Deal.Status switch
+                    {
+                        DealStatus.InProgress => "badge bg-info",
+                        DealStatus.Successful => "badge bg-success",
+                        DealStatus.Failed => "badge bg-danger",
+                        _ => "badge bg-secondary"
+                    };
+                    var text = Model.Deal.Status switch
+                    {
+                        DealStatus.InProgress => "In Progress",
+                        DealStatus.Successful => "Successful",
+                        DealStatus.Failed => "Failed",
+                        _ => Model.Deal.Status.ToString()
+                    };
+                }
+                <span class="@badge">@text</span>
+            </dd>
+
+            <dt class="col-sm-3">Amount</dt>
+            <dd class="col-sm-9">@Model.Deal.Amount.ToString("N2") @Model.Deal.Currency</dd>
+
+            <dt class="col-sm-3">Probability</dt>
+            <dd class="col-sm-9">@Model.Deal.Probability%</dd>
+
+            <dt class="col-sm-3">Close date</dt>
+            <dd class="col-sm-9">@Model.Deal.CloseDate?.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-3">Notes</dt>
+            <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Deal.Notes) ? "—" : Model.Deal.Notes)</dd>
+
+            <dt class="col-sm-3">Created at</dt>
+            <dd class="col-sm-9">@Model.Deal.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+            @if (Model.Deal.UpdatedAt.HasValue)
+            {
+                <dt class="col-sm-3">Updated</dt>
+                <dd class="col-sm-9">@Model.Deal.UpdatedAt?.ToString("yyyy-MM-dd HH:mm")</dd>
+            }
+
+            @if (User.IsInRole("Admin"))
+            {
+                <dt class="col-sm-3">Created by</dt>
+                <dd class="col-sm-9">@((Model.Deal?.CreatedBy?.Email) ?? "—")</dd>
+            }
+        </dl>
+    </div>
+
+    <div class="d-flex gap-2 mb-4">
+        <a asp-page="./Edit" asp-route-id="@Model.Deal.Id" class="btn btn-edit btn-edit-details">Edit</a>
+        <a asp-page="./Index" class="btn btn-cancel">Back to list</a>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="mb-0">Interactions</h4>
+        <div>
+            <span class="text-muted me-2">Total: @Model.Interactions.Count</span>
+            <a asp-page="/Interactions/Create"
+               asp-route-DealId="@Model.Deal.Id"
+               asp-route-ClientId="@Model.Deal.ClientId"
+               class="btn btn-save">
+                Add Interaction
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-hover table-bordered">
+        <thead class="custom-header">
+            <tr>
+                <th style="width:160px;">Date</th>
+                <th style="width:160px;">Type</th>
+                <th>Comment</th>
+                @if (User.IsInRole("Admin"))
+                {
+                    <th style="width:220px;">Created by</th>
+                }
+                <th class="actions-col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Interactions.Count == 0)
+            {
+                <tr>
+                    <td colspan="@(User.IsInRole("Admin") ? 5 : 4)" class="text-center text-muted">
+                        No interactions for this deal yet.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var it in Model.Interactions)
+                {
+                    <tr>
+                        <td>@it.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@it.Type</td>
+                        <td>@(string.IsNullOrWhiteSpace(it.Comment) ? "—" : it.Comment)</td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <td>@(it.CreatedBy?.Email ?? "—")</td>
+                        }
+                        <td class="actions-col">
+                            <div class="d-flex">
+                                <a asp-page="/Interactions/Edit" asp-route-id="@it.Id" class="btn btn-edit">Edit</a>
+                                <a asp-page="/Interactions/Details" asp-route-id="@it.Id" class="btn btn-details">Details</a>
+                                <a asp-page="/Interactions/Delete" asp-route-id="@it.Id" class="btn btn-delete">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

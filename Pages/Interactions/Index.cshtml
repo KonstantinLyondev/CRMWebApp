@@ -1,0 +1,141 @@
+﻿@page
+@model CRMWebApp.Pages.Interactions.IndexModel
+@using CRMWebApp.Models
+
+@{
+    ViewData["Title"] = "Interactions";
+}
+
+<style>
+    table#interactions-index tbody td:nth-child(3), /* Comment */
+    table#interactions-index tbody td:nth-child(4) /* Client */ {
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
+    table#interactions-index tbody td:nth-child(1), /* Date */
+    table#interactions-index tbody td:nth-child(2), /* Type */
+    table#interactions-index tbody td:nth-child(5) /* Actions */ {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+    }
+
+    table#interactions-index {
+        min-width: 1000px;
+    }
+
+        table#interactions-index th.actions-col,
+        table#interactions-index td.actions-col {
+            white-space: nowrap;
+            width: 220px;
+        }
+
+    .comment-scroll {
+        max-height: 84px; 
+        overflow: auto;
+        padding-right: .25rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+</style>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Interactions</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a asp-page="./Index" asp-route-scope="all"
+               class="btn @(Model.Scope == "all" ? "btn-primary" : "btn-outline-primary")">All</a>
+            <a asp-page="./Index" asp-route-scope="created"
+               class="btn @(Model.Scope == "created" ? "btn-primary" : "btn-outline-primary")">Created by me</a>
+        </div>
+    }
+
+    <div class="mb-3">
+        <a asp-page="Create" class="btn btn-success">Create New Interaction</a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 d-flex align-items-center gap-2">
+            <label for="SortBy" class="form-label mb-0 fw-semibold">Sort by:</label>
+            <select name="SortBy" id="SortBy" class="form-select w-auto">
+                <option value="">-- Default --</option>
+                <option value="date_desc" selected="@("date_desc" == Model.SortBy)">Date ↓</option>
+                <option value="date_asc" selected="@("date_asc" == Model.SortBy)">Date ↑</option>
+                <option value="type_asc" selected="@("type_asc" == Model.SortBy)">Type A–Z</option>
+                <option value="type_desc" selected="@("type_desc" == Model.SortBy)">Type Z–A</option>
+                <option value="client_asc" selected="@("client_asc" == Model.SortBy)">Client A–Z</option>
+                <option value="client_desc" selected="@("client_desc" == Model.SortBy)">Client Z–A</option>
+            </select>
+        </div>
+
+        <div class="col-md-6">
+            <input id="searchInteraction" class="form-control" placeholder="Search by type or client..." />
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="interactions-index" class="table table-striped table-hover table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Comment</th>
+                    <th>Client</th>
+                    <th class="actions-col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="interactionTableBody">
+                @await Html.PartialAsync("_InteractionRows", Model.Rows)
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const searchInput = document.getElementById('searchInteraction');
+        const sortDropdown = document.querySelector('select[name="SortBy"]');
+        const scope = '@Model.Scope';
+
+        function doFilter() {
+            const query = searchInput.value || "";
+            const sort = sortDropdown.value || "";
+
+            fetch(`/Interactions?handler=Filter&query=${encodeURIComponent(query)}&sortOrder=${encodeURIComponent(sort)}&scope=${encodeURIComponent(scope)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('interactionTableBody').innerHTML = html;
+                });
+        }
+
+        searchInput.addEventListener('input', doFilter);
+        sortDropdown.addEventListener('change', doFilter);
+
+        const alert = document.querySelector('.alert.alert-success');
+        if (alert) {
+            alert.style.transition = "opacity .6s ease, margin .6s ease, height .6s ease, padding .6s ease";
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.margin = '0';
+                alert.style.height = '0';
+                alert.style.padding = '0';
+                alert.style.overflow = 'hidden';
+                setTimeout(() => alert.remove(), 600);
+            }, 4000);
+        }
+    </script>
+}
+

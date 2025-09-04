@@ -1,0 +1,97 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Sign up";
+}
+
+<h1 class="text-center mt-4">@ViewData["Title"]</h1>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2 class="mb-4 text-center">Create a new account</h2>
+
+            <div asp-validation-summary="All" class="text-danger mb-3" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email"
+                       type="email"
+                       class="form-control"
+                       autocomplete="username"
+                       placeholder="Enter your email"
+                       pattern="^[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$"
+                       title="Email must be lowercase (a–z, digits, ., _, %, +, -)"
+                       oninput="this.value = this.value.toLowerCase();" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label asp-for="Input.Password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input asp-for="Input.Password"
+                           type="password"
+                           class="form-control"
+                           id="passwordInput"
+                           placeholder="Enter your password"
+                           autocomplete="new-password" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()" tabindex="-1">
+                        <i id="passwordToggleIcon" class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 position-relative">
+                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input asp-for="Input.ConfirmPassword"
+                           type="password"
+                           class="form-control"
+                           id="confirmPasswordInput"
+                           placeholder="Confirm your password"
+                           autocomplete="new-password" />
+                    <button type="button" class="btn btn-outline-secondary" onclick="toggleConfirmPassword()" tabindex="-1">
+                        <i id="confirmPasswordToggleIcon" class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Sign up</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword() {
+            const input = document.getElementById("passwordInput");
+            const icon = document.getElementById("passwordToggleIcon");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+
+        function toggleConfirmPassword() {
+            const input = document.getElementById("confirmPasswordInput");
+            const icon = document.getElementById("confirmPasswordToggleIcon");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+    </script>
+}

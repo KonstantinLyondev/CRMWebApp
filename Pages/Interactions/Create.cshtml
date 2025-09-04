@@ -1,0 +1,129 @@
+﻿@page
+@model CRMWebApp.Pages.Interactions.CreateModel
+
+@{
+    ViewData["Title"] = "Create Interaction";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Create Interaction</h1>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">Please fix the errors below and try again.</div>
+    }
+
+    <div class="form-container">
+        <form method="post">
+            <div class="mb-3">
+                <label for="ClientId" class="form-label">Client</label>
+                <select asp-for="ClientId" class="form-select" asp-items="Model.ClientsList" id="ClientId">
+                    <option value="">-- Select Client --</option>
+                </select>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="DealId" class="form-label">Deal (optional)</label>
+                <select asp-for="DealId" class="form-select" id="DealId" disabled>
+                    <option value="">-- No deal --</option>
+                </select>
+                <span asp-validation-for="DealId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Date" class="form-label"></label>
+                <input asp-for="Date" type="text" id="datepicker" class="form-control" placeholder="Select date and time" autocomplete="off" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <!-- Type: dropdown instead of free text -->
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label"></label>
+                <select asp-for="Type" class="form-select" asp-items="Model.TypeOptions">
+                    <option value="">-- Select type --</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Comment" class="form-label"></label>
+                <textarea asp-for="Comment" class="form-control" placeholder="Optional comment..."></textarea>
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-save">Create</button>
+            <a asp-page="./Index" class="btn btn-cancel">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        flatpickr("#datepicker", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "F j, Y h:i K",
+            time_24hr: false,
+            maxDate: new Date(),
+            defaultDate: "@Model.Date.ToString("yyyy-MM-dd HH:mm")"
+        });
+
+        const clientSel = document.getElementById('ClientId');
+        const dealSel   = document.getElementById('DealId');
+
+        function clearDeals() {
+            dealSel.innerHTML = '<option value="">-- No deal --</option>';
+            dealSel.disabled = true;
+        }
+
+        async function loadDeals(clientId, preselectValue) {
+            if (!clientId) { clearDeals(); return; }
+            const baseUrl = '@Url.Page("./Create")';
+            const url = `${baseUrl}?handler=Deals&clientId=${encodeURIComponent(clientId)}`;
+
+            try {
+                const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const deals = await resp.json();
+
+                dealSel.innerHTML = '<option value="">-- No deal --</option>';
+                deals.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = d.title;
+                    dealSel.appendChild(opt);
+                });
+                dealSel.disabled = false;
+
+                if (preselectValue) {
+                    dealSel.value = preselectValue;
+                }
+            } catch (err) {
+                console.error('Failed to load deals:', err);
+                clearDeals();
+            }
+        }
+        clientSel.addEventListener('change', () => {
+            loadDeals(clientSel.value, null);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialClient  = clientSel.value;
+            const preselectDeal  = '@(Model.DealId?.ToString() ?? "")'; 
+            if (initialClient) {
+                loadDeals(initialClient, preselectDeal);
+            } else {
+                clearDeals();
+            }
+        });
+    </script>
+}

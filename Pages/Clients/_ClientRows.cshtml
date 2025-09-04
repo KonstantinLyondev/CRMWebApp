@@ -1,0 +1,64 @@
+﻿@model IEnumerable<CRMWebApp.Pages.Clients.IndexModel.Row>
+
+@if (!Model.Any())
+{
+    <tr>
+        <td colspan="8" class="text-center text-muted">No clients found.</td>
+    </tr>
+}
+else
+{
+    foreach (var row in Model)
+    {
+        var item = row.Item;
+        <tr>
+            <td>
+                <span class="truncate-240" title="@item.Name">@item.Name</span>
+            </td>
+            <td>
+                <span class="truncate-280" title="@item.Email">@item.Email</span>
+            </td>
+            <td>@item.Phone</td>
+            <td>
+                <span class="truncate-200" title="@item.City">@item.City</span>
+            </td>
+            <td>
+                <span class="truncate-240" title="@item.Address">@item.Address</span>
+            </td>
+            <td>
+                <span class="truncate-240" title="@item.Company">@item.Company</span>
+            </td>
+            <td>
+                @if (item.IsVip)
+                {
+                    <span class="badge bg-warning text-dark">VIP</span>
+                }
+            </td>
+            <td class="text-end actions-col">
+                <div class="d-flex flex-nowrap gap-1 justify-content-end">
+                    @if (row.CanEdit)
+                    {
+                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-edit text-nowrap">Edit</a>
+                    }
+                    else
+                    {
+                        <a role="button" class="btn btn-sm btn-edit text-nowrap disabled"
+                           aria-disabled="true" tabindex="-1" style="pointer-events:none">Edit</a>
+                    }
+
+                    <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-details text-nowrap">Details</a>
+
+                    @if (row.CanDelete)
+                    {
+                        <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-delete text-nowrap">Delete</a>
+                    }
+                    else
+                    {
+                        <a role="button" class="btn btn-sm btn-delete text-nowrap disabled"
+                           aria-disabled="true" tabindex="-1" style="pointer-events:none">Delete</a>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+}

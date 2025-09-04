@@ -1,0 +1,194 @@
+﻿@page
+@model CRMWebApp.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="mb-0">Dashboard</h1>
+
+        @*  *@
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="d-flex gap-2">
+                <a asp-page="./Index" asp-route-scope="all"
+                   class="btn @(Model.Scope == "all" ? "btn-primary" : "btn-outline-primary")">All</a>
+                <a asp-page="./Index" asp-route-scope="mine"
+                   class="btn @(Model.Scope == "mine" ? "btn-primary" : "btn-outline-primary")">Created by me</a>
+            </div>
+        }
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="fw-semibold text-muted mb-1">Clients</div>
+                    <div class="display-6">@Model.VM.TotalClients</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="fw-semibold text-muted mb-1">Deals</div>
+                    <div class="display-6">@Model.VM.TotalDeals</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="fw-semibold text-muted mb-1">Interactions</div>
+                    <div class="display-6">@Model.VM.TotalInteractions</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="fw-semibold text-muted mb-1">Open Deals</div>
+                    <div class="display-6">@Model.VM.OpenDeals</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deals Pipeline chart -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <div class="d-flex gap-2 align-items-center mb-2">
+                <h5 class="mb-0">Deals Pipeline</h5>
+                <select id="range" class="form-select form-select-sm" style="width:auto">
+                    <option value="12m">Last 12 months</option>
+                    <option value="6m">Last 6 months</option>
+                    <option value="3m" selected>Last 3 months</option>
+                </select>
+            </div>
+            <div style="height:320px"><canvas id="salesChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Recent interactions -->
+    <div class="card shadow-sm mt-4 mb-5">
+        <div class="card-body">
+            <h5 class="mb-3">Recent Interactions</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:140px">Date</th>
+                            <th>Client</th>
+                            <th>Deal</th>
+                            <th style="width:220px">Type/Notes</th>
+                            <th style="width:180px">User</th>
+                            <th style="width:100px" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.VM.RecentInteractions.Count == 0)
+                        {
+                            <tr><td colspan="6" class="text-center text-muted">No interactions yet.</td></tr>
+                        }
+                        else
+                        {
+                            foreach (var r in Model.VM.RecentInteractions)
+                            {
+                                <tr>
+                                    <td>@r.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@r.ClientName</td>
+                                    <td>@r.DealTitle</td>
+                                    <td>@r.Type</td>
+                                    <td>@r.PerformedBy</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-primary" asp-page="/Interactions/Details" asp-route-id="@r.Id">View</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let chart;
+        const scope = '@Model.Scope';
+
+        function showMessage(msg){
+            const box = document.createElement('div');
+            box.className = 'text-muted chart-msg';
+            box.style.padding = '1rem';
+            box.textContent = msg;
+            const cont = document.getElementById('salesChart').parentElement;
+            cont.querySelectorAll('.chart-msg').forEach(x=>x.remove());
+            cont.appendChild(box);
+        }
+
+        async function load(range = '12m') {
+            const base = '@Url.Page("/Dashboard/Index", pageHandler: "SalesData")';
+            const sep  = base.includes('?') ? '&' : '?';
+            const url  = base + sep + 'range=' + encodeURIComponent(range) + '&scope=' + encodeURIComponent(scope);
+
+            let res;
+            try { res = await fetch(url, { cache: 'no-store' }); }
+            catch { showMessage('Could not load chart data.'); return; }
+
+            if (!res.ok) { showMessage('No data (HTTP ' + res.status + ').'); return; }
+
+            const payload = await res.json();
+            const labels = payload?.labels ?? [];
+            const series = payload?.series ?? [];
+
+            if (!labels.length || !series.length) { showMessage('No data for selected period.'); return; }
+
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: series.map(s => {
+                        const label = s.label || '';
+                        let color = 'blue';
+                        if (label.includes('Won'))  color = 'green';
+                        if (label.includes('Lost')) color = 'red';
+                        return {
+                            label,
+                            data: s.data,
+                            borderColor: color,
+                            backgroundColor: color,
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        };
+                    })
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        legend: { display: true, labels: { usePointStyle: true } },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}` } }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('range').addEventListener('change', e => load(e.target.value));
+        load(document.getElementById('range').value);
+    </script>
+}

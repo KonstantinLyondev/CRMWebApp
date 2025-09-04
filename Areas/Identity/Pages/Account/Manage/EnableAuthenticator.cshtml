@@ -1,0 +1,65 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.Manage.EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Configure authenticator app";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+
+        <div class="col-md-9">
+            <h3 class="mb-3">@ViewData["Title"]</h3>
+
+            <ol class="mb-4">
+                <li class="mb-2">
+                    Download an authenticator app such as
+                    <a href="https:                    or Google Authenticator.
+                </li>
+                <li class="mb-2">Scan the QR code or enter the manual key.</li>
+            </ol>
+
+            <div class="row g-4 align-items-center mb-4">
+                <div class="col-auto">
+                    @if (!string.IsNullOrEmpty(Model.QrCodeImageUrl))
+                    {
+                        <img src="@Model.QrCodeImageUrl" alt="Authenticator QR code"
+                             class="img-thumbnail" style="max-width:220px;" />
+                    }
+                </div>
+                <div class="col">
+                    <div class="alert alert-secondary mb-2">
+                        <div class="fw-semibold mb-1">Manual key</div>
+                        <code class="user-select-all">@Model.SharedKey</code>
+                    </div>
+                    <small class="text-muted">Spaces and casing do not matter.</small>
+                </div>
+            </div>
+
+            <hr />
+
+            <form method="post" class="mt-3" id="send-code">
+                <div class="mb-3">
+                    <label asp-for="Input.Code" class="form-label">Verification code</label>
+                    <input asp-for="Input.Code" class="form-control"
+                           autocomplete="one-time-code" inputmode="numeric" />
+                    <span asp-validation-for="Input.Code" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Verify</button>
+                <a asp-page="./TwoFactorAuthentication" class="btn btn-outline-secondary ms-2">Back</a>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mt-3" role="alert"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

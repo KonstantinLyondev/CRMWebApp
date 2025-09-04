@@ -1,0 +1,105 @@
+﻿@model IEnumerable<CRMWebApp.Pages.Admin.Users.IndexModel.UserRow>
+
+@{
+    var i = 0;
+}
+
+@foreach (var u in Model)
+{
+    <tr>
+        <td>@(++i)</td>
+        <td>@(string.IsNullOrWhiteSpace(u.FullName) ? "-" : u.FullName)</td>
+        <td>@u.Email</td>
+        <td>
+            @if (!string.IsNullOrWhiteSpace(u.Roles))
+            {
+                foreach (var role in u.Roles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    <span class="badge bg-primary-subtle text-primary border me-1">@role</span>
+                }
+            }
+            else
+            {
+                <span class="text-muted">-</span>
+            }
+        </td>
+        <td>@(u.EmailConfirmed ? "Yes" : "No")</td>
+        <td>
+            @if (u.IsDeactivated)
+            {
+                <span class="badge bg-secondary">Deactivated</span>
+            }
+            else
+            {
+                <span class="badge bg-success-subtle text-success border">Active</span>
+            }
+        </td>
+
+        <td class="text-end">
+            @if (!u.IsSelf && !u.IsSystemAccount)
+            {
+                if (!u.IsAdmin)
+                {
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary rounded-pill"
+                            data-bs-toggle="modal"
+                            data-bs-target="#makeAdminModal"
+                            data-user-id="@u.Id"
+                            data-user-email="@u.Email">
+                        <i class="bi bi-shield-plus"></i> Make Admin
+                    </button>
+                }
+                else
+                {
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary rounded-pill"
+                            data-bs-toggle="modal"
+                            data-bs-target="#removeAdminModal"
+                            data-user-id="@u.Id"
+                            data-user-email="@u.Email">
+                        <i class="bi bi-shield-minus"></i> Remove Admin
+                    </button>
+                }
+            }
+
+            @if (!u.IsDeactivated)
+            {
+                <form method="post" asp-page-handler="Deactivate" asp-route-id="@u.Id" class="d-inline ms-1 needs-loading">
+                    <button type="submit" class="btn btn-sm btn-warning rounded-pill">
+                        <i class="bi bi-slash-circle"></i> Deactivate
+                    </button>
+                    @Html.AntiForgeryToken()
+                </form>
+            }
+            else
+            {
+                <form method="post" asp-page-handler="Reactivate" asp-route-id="@u.Id" class="d-inline ms-1 needs-loading">
+                    <button type="submit" class="btn btn-sm btn-success rounded-pill">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reactivate
+                    </button>
+                    @Html.AntiForgeryToken()
+                </form>
+            }
+
+            <form method="post" asp-page-handler="Delete" asp-route-id="@u.Id" class="d-inline ms-1 needs-loading">
+                <button type="submit" class="btn btn-sm btn-danger rounded-pill"
+                        onclick="return confirm('Permanently delete @u.Email ? This cannot be undone.')"
+                        @(u.IsSelf || u.IsAdmin || !u.IsDeactivated ? "disabled" : null)>
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+                @Html.AntiForgeryToken()
+            </form>
+
+            @if (!u.IsAdmin)
+            {
+                <form method="post" asp-page-handler="Impersonate" class="d-inline ms-1 needs-loading">
+                    <input type="hidden" name="id" value="@u.Id" />
+                    <button class="btn btn-sm btn-primary rounded-pill">
+                        <i class="bi bi-person-badge"></i> Impersonate
+                    </button>
+                    @Html.AntiForgeryToken()
+                </form>
+            }
+        </td>
+    </tr>
+}

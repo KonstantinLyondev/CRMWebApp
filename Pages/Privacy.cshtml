@@ -1,0 +1,56 @@
+﻿@page
+@model CRMWebApp.Pages.PrivacyModel
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+
+    <p>
+        This CRM application (“CRMWebApp”) collects and processes personal data solely for the
+        purpose of providing customer relationship management functionalities.
+    </p>
+
+    <h4>What data we collect</h4>
+    <ul>
+        <li>Email address, username, and password (stored as a secure hash)</li>
+        <li>Client information entered by users (name, contacts, company details, addresses)</li>
+        <li>Deals and interactions related to clients</li>
+        <li>Security and audit logs (who performed which action and when)</li>
+    </ul>
+
+    <h4>How we use your data</h4>
+    <p>
+        The data is used to provide CRM features such as managing clients, tracking deals,
+        logging interactions, and ensuring application security. We do not sell or share data
+        with third parties, except when required by law or for hosting/email delivery providers
+        under strict contractual guarantees.
+    </p>
+
+    <h4>Data storage</h4>
+    <p>
+        Data is stored in Microsoft SQL Server. It remains available as long as your account
+        is active. If you delete your account, your data will be erased or anonymized within
+        a reasonable timeframe.
+    </p>
+
+    <h4>User rights</h4>
+    <p>
+        You have the right to request access, correction, deletion (“right to be forgotten”),
+        restriction, objection, and data portability. You can manage part of this directly
+        from your account (Personal Data page).
+    </p>
+
+    <h4>Security</h4>
+    <p>
+        Passwords are stored using strong hashing algorithms. All communication is protected
+        by HTTPS. Access to functionality is strictly controlled through user roles (Admin/User).
+    </p>
+
+    <h4>Changes</h4>
+    <p>
+        This policy may be updated. Significant updates will be communicated to users
+        within the application.
+    </p>
+</div>

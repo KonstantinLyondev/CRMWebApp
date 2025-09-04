@@ -1,0 +1,9 @@
+﻿@model byte
+@{
+    var v = Model;
+    var cls = v >= 75 ? "bg-success"
+             : v >= 40 ? "bg-info"
+             : v >= 20 ? "bg-warning text-dark"
+             : "bg-danger";
+}
+<span class="badge @cls">@v%</span>

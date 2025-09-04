@@ -1,0 +1,159 @@
+﻿@page
+@model CRMWebApp.Pages.Deals.IndexModel
+@using CRMWebApp.Models
+
+@{
+    ViewData["Title"] = "Deals";
+}
+
+<style>
+    table#deals-index tbody td:nth-child(1), /* Title */
+    table#deals-index tbody td:nth-child(2), /* Client */
+    table#deals-index tbody td:nth-child(8) /* Notes */ {
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
+    table#deals-index tbody td:nth-child(3), /* Status */
+    table#deals-index tbody td:nth-child(4), /* Amount */
+    table#deals-index tbody td:nth-child(5), /* Currency */
+    table#deals-index tbody td:nth-child(6), /* Probability */
+    table#deals-index tbody td:nth-child(7), /* Close date */
+    table#deals-index tbody td:nth-child(9) /* Actions */ {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+    }
+
+    table#deals-index {
+        min-width: 1100px; 
+    }
+        table#deals-index th.actions-col,
+        table#deals-index td.actions-col {
+            white-space: nowrap;
+            width: 220px;
+        }
+</style>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Deals</h1>
+
+    @if (TempData["Success"] is string ok && !string.IsNullOrWhiteSpace(ok))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @ok
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a asp-page="./Index" asp-route-scope="all"
+               class="btn @(Model.Scope == "all" ? "btn-primary" : "btn-outline-primary")">All</a>
+            <a asp-page="./Index" asp-route-scope="created"
+               class="btn @(Model.Scope == "created" ? "btn-primary" : "btn-outline-primary")">Created by me</a>
+        </div>
+    }
+
+    <div class="mb-3">
+        <a asp-page="./Create" class="btn btn-success">Create New Deal</a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-lg-4 col-md-6 mb-2">
+            <div class="d-flex align-items-center">
+                <label class="me-2 fw-semibold">Sort by:</label>
+                <select id="sortOrder" class="form-select" style="width: 220px;">
+                    <option value="">-- Default --</option>
+                    <option value="Title" selected="@(Model.CurrentSort == "Title")">Title A–Z</option>
+                    <option value="Title_desc" selected="@(Model.CurrentSort == "Title_desc")">Title Z–A</option>
+                    <option value="Amount" selected="@(Model.CurrentSort == "Amount")">Amount ↑</option>
+                    <option value="Amount_desc" selected="@(Model.CurrentSort == "Amount_desc")">Amount ↓</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-2">
+            <div class="d-flex align-items-center">
+                <label class="me-2 fw-semibold">Status:</label>
+                <select id="statusFilter"
+                        asp-for="StatusFilter"
+                        asp-items="Html.GetEnumSelectList<CRMWebApp.Models.DealStatus>()"
+                        class="form-select" style="width: 220px;">
+                    <option value="">All statuses</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-12">
+            <input id="searchInput" class="form-control" placeholder="Search by title, client, notes..." />
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="deals-index" class="table table-hover table-bordered">
+            <thead class="custom-header">
+                <tr>
+                    <th>Title</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Currency</th>
+                    <th>Probability</th>
+                    <th>Close date</th>
+                    <th>Notes</th>
+                    <th class="actions-col">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dealTableBody">
+                @await Html.PartialAsync("_DealRows", Model.Rows)
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const input = document.getElementById('searchInput');
+        const sortDropdown = document.getElementById('sortOrder');
+        const statusDropdown = document.getElementById('statusFilter');
+        const scope = '@Model.Scope'; 
+
+        function doFilter() {
+            const query  = input.value || "";
+            const sort   = sortDropdown.value || ""
+            const status = statusDropdown.value || "";
+
+            fetch(`/Deals?handler=Filter&query=${encodeURIComponent(query)}&sortOrder=${encodeURIComponent(sort)}&status=${encodeURIComponent(status)}&scope=${encodeURIComponent(scope)}`)
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById('dealTableBody').innerHTML = html;
+                })
+                .catch(console.error);
+        }
+
+        input.addEventListener('input', doFilter);
+        sortDropdown.addEventListener('change', doFilter);
+        statusDropdown.addEventListener('change', doFilter);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sortDropdown.value || statusDropdown.value) doFilter();
+
+            const alert = document.querySelector('.alert.alert-success');
+            if (alert) {
+                alert.style.transition = "opacity .6s ease, margin .6s ease, height .6s ease, padding .6s ease";
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.margin = '0';
+                    alert.style.height = '0';
+                    alert.style.padding = '0';
+                    alert.style.overflow = 'hidden';
+                    setTimeout(() => alert.remove(), 600);
+                }, 4000);
+            }
+        });
+    </script>
+}

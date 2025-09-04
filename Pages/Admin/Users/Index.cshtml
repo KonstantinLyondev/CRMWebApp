@@ -1,0 +1,209 @@
+﻿@page
+@model CRMWebApp.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+@section Styles {
+    <style>
+        #makeAdminModal, #removeAdminModal {
+            z-index: 3000 !important;
+        }
+
+        .modal-backdrop {
+            display: none !important;
+        }
+
+        .impersonation-bar {
+            z-index: 1030 !important;
+        }
+
+        .modal-open .impersonation-bar {
+            display: none !important;
+        }
+
+        #searchUser::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+
+        #searchUser {
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: none;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <h1 class="mb-3">Users</h1>
+
+    @if (!string.IsNullOrEmpty(Model.Success))
+    {
+        <div id="autoDismiss" class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.Success
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+        <div id="autoDismiss" class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            <input id="searchUser" class="form-control" placeholder="Search by email..."
+                   list="emailSuggestions" autocomplete="off" />
+            <datalist id="emailSuggestions"></datalist>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:60px">#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Roles</th>
+                            <th>Email confirmed</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        @await Html.PartialAsync("_UserRows", Model.Users)
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="makeAdminModal" tabindex="-1" aria-labelledby="makeAdminLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="makeAdminLabel"><i class="bi bi-shield-plus me-1"></i> Promote to Admin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="MakeAdmin" class="needs-loading">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="makeAdminUserId" />
+                    <p>Are you sure you want to grant <strong id="makeAdminUserEmail">this user</strong> the <strong>Admin</strong> role?</p>
+                    <div class="alert alert-warning small mb-0">
+                        They will have full admin permissions. Admin pages still require sign-in with <strong>2FA</strong>.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill">
+                        <span class="btn-text"><i class="bi bi-shield-plus"></i> Confirm</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="removeAdminModal" tabindex="-1" aria-labelledby="removeAdminLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeAdminLabel"><i class="bi bi-shield-minus me-1"></i> Remove Admin Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="RemoveAdmin" class="needs-loading">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="removeAdminUserId" />
+                    <p>Remove <strong id="removeAdminUserEmail">this user</strong> from the <strong>Admin</strong> role?</p>
+                    <div class="alert alert-info small mb-0">
+                        They will retain their account, but lose access to admin pages.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-outline-secondary rounded-pill">
+                        <span class="btn-text"><i class="bi bi-shield-minus"></i> Confirm</span>
+                        <span class="btn-loading spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('makeAdminModal')
+          .addEventListener('show.bs.modal', function (event) {
+            const btn = event.relatedTarget;
+            document.getElementById('makeAdminUserId').value = btn.getAttribute('data-user-id');
+            document.getElementById('makeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
+          });
+
+        document.getElementById('removeAdminModal')
+          .addEventListener('show.bs.modal', function (event) {
+            const btn = event.relatedTarget;
+            document.getElementById('removeAdminUserId').value = btn.getAttribute('data-user-id');
+            document.getElementById('removeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
+          });
+
+        document.addEventListener('submit', function (e) {
+          const f = e.target.closest('form.needs-loading');
+          if (!f) return;
+          const btn = f.querySelector('button[type="submit"]');
+          if (!btn) return;
+          const text = btn.querySelector('.btn-text'); const spin = btn.querySelector('.btn-loading');
+          if (text && spin) { text.classList.add('d-none'); spin.classList.remove('d-none'); }
+          btn.setAttribute('disabled', 'disabled');
+        });
+
+        setTimeout(() => {
+          document.querySelectorAll("#autoDismiss").forEach(el => new bootstrap.Alert(el).close());
+        }, 4000);
+
+        const searchInput = document.getElementById('searchUser');
+        const suggestions = document.getElementById('emailSuggestions');
+        const tbody = document.getElementById('usersTableBody');
+
+        async function loadSuggestions(term) {
+            if (!term) { suggestions.innerHTML = ''; return; }
+            const resp = await fetch(`?handler=Autocomplete&term=${encodeURIComponent(term)}`, { cache: 'no-store' });
+            if (!resp.ok) return;
+            const list = await resp.json();
+            suggestions.innerHTML = '';
+            list.forEach(email => {
+                const opt = document.createElement('option');
+                opt.value = email;
+                suggestions.appendChild(opt);
+            });
+        }
+
+        async function doFilter() {
+            const query = searchInput.value || '';
+            const html = await fetch(`?handler=Filter&query=${encodeURIComponent(query)}`, { cache: 'no-store' })
+                .then(r => r.text());
+            tbody.innerHTML = html;
+        }
+
+        let t;
+        searchInput.addEventListener('input', () => {
+            const term = searchInput.value.trim();
+            clearTimeout(t);
+            t = setTimeout(() => {
+                if (term.length >= 1) loadSuggestions(term);
+                doFilter();
+            }, 150);
+        });
+        searchInput.addEventListener('change', doFilter);
+    </script>
+}

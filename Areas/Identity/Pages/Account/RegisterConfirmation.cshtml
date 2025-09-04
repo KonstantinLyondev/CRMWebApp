@@ -1,0 +1,90 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Register confirmation";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5 text-center">
+
+                    @if (TempData["Message"] is string msg)
+                    {
+                        <div id="alertBox" class="alert alert-success alert-dismissible fade show text-start" role="alert">
+                            @msg
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <h1 class="h4 fw-bold mb-2">Register confirmation</h1>
+
+                    @if (Model.AlreadyConfirmed)
+                    {
+                        <p class="text-secondary mb-4">
+                            This email <strong>@Model.Email</strong> is already confirmed. You can log in.
+                        </p>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">Go to login</a>
+                    }
+                    else
+                    {
+                        <p class="text-secondary mb-4">
+                            We have sent a confirmation email to <strong>@Model.Email</strong>.
+                            Please check your inbox to confirm your account.
+                        </p>
+
+                        <form method="post" class="d-inline">
+                            <input type="hidden" asp-for="Email" />
+                            <button id="resendBtn"
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    disabled="@(Model.CooldownSeconds > 0 ? "disabled" : null)"
+                                    data-remaining="@Model.CooldownSeconds">
+                                @(Model.CooldownSeconds > 0 ? $"Resend link (in {Model.CooldownSeconds}s)" : "Resend link")
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="text-center mt-3 small text-muted">
+                &copy; @DateTime.UtcNow.Year - CRMWebApp
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    const alertBox = document.getElementById('alertBox');
+    if (alertBox) {
+        setTimeout(() => {
+            alertBox.classList.remove("show");
+            alertBox.classList.add("hide");
+            alertBox.addEventListener('transitionend', () => alertBox.remove(), { once: true });
+        }, 3000);
+    }
+
+    const btn = document.getElementById('resendBtn');
+    if (btn) {
+        let remaining = parseInt(btn.dataset.remaining || "0", 10);
+        if (remaining > 0) {
+            const tick = () => {
+                remaining--;
+                if (remaining > 0) {
+                    btn.textContent = `Resend link (in ${remaining}s)`;
+                    btn.setAttribute('disabled', 'disabled');
+                    setTimeout(tick, 1000);
+                } else {
+                    btn.textContent = 'Resend link';
+                    btn.removeAttribute('disabled');
+                }
+            };
+            setTimeout(tick, 1000);
+        }
+    }
+})();
+</script>
+}

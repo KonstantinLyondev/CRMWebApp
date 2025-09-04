@@ -1,0 +1,55 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">My Profile</h2>
+
+        @if (TempData["Success"] != null)
+        {
+            <div id="statusMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" readonly />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.FullName" class="form-label">Full Name</label>
+                <input asp-for="Input.FullName" class="form-control" placeholder="Your full name" />
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Company" class="form-label">Company</label>
+                <input asp-for="Input.Company" class="form-control" placeholder="Company name" />
+                <span asp-validation-for="Input.Company" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        setTimeout(function () {
+            const alertBox = document.getElementById('statusMessage');
+            if (alertBox) {
+                alertBox.classList.remove('show');
+                alertBox.classList.add('fade');
+                setTimeout(() => alertBox.remove(), 300);
+            }
+        }, 3000); 
+    </script>
+}

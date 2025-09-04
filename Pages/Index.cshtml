@@ -1,0 +1,140 @@
+﻿@page
+@model CRMWebApp.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+
+<section class="py-5 bg-light position-relative overflow-hidden">
+    <div class="container py-5">
+
+        @if (TempData["SuccessMessage"] is string ok && !string.IsNullOrWhiteSpace(ok))
+        {
+            <div id="autoDismiss" class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+                @ok
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] is string err && !string.IsNullOrWhiteSpace(err))
+        {
+            <div id="autoDismissError" class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+                @err
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">
+                    Manage clients smarter with <span class="text-primary">ClientFlow</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    CRMWebApp is a web‑based CRM that streamlines client management, deals, and team communication.
+                    Create profiles, track interactions, and improve your workflow in a few clicks.
+                </p>
+                <div class="d-flex gap-3">
+                    <a class="btn btn-primary btn-lg px-4" asp-page="/Clients/Index">Manage Clients</a>
+                    <a class="btn btn-outline-secondary btn-lg px-4" asp-page="/Interactions/Index">Track Interactions</a>
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-center mt-4 mt-lg-0">
+                <img src="~/images/Business merger-rafiki.png" alt="CRM illustration"
+                     class="img-fluid rounded-4 shadow-sm" style="max-height: 360px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="rounded-4 shadow-sm p-4 p-md-5 bg-light">
+            <h2 class="fw-bold text-center mb-5">Why choose ClientFlow?</h2>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="icon-wrap mb-3">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M16 11a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3.5 20a7.5 7.5 0 0 1 17 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5 fw-semibold">Centralized Clients</h3>
+                        <p class="text-muted mb-0">Keep all client data in one secure and accessible place.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="icon-wrap mb-3">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M3 8l5 5a3 3 0 0 0 4.24 0L18 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M7 12l2 2m6-7 2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M2 6h5l3 3m12-3h-5l-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5 fw-semibold">Deals Pipeline</h3>
+                        <p class="text-muted mb-0">Create, update, and track deal status from prospect to won.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="icon-wrap mb-3">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="6" y="4" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M9 4.5h6V7H9V4.5Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M8.5 10h7M8.5 13h7M8.5 16h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5 fw-semibold">Track Interactions</h3>
+                        <p class="text-muted mb-0">Log meetings, calls, and notes to maintain clear timelines.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card h-100 border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="icon-wrap mb-3">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="4" y="11" width="16" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <circle cx="12" cy="15.5" r="1.5" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="h5 fw-semibold">Secure Access</h3>
+                        <p class="text-muted mb-0">Role‑based sign‑in, email confirmations, and modern security.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-light py-4 mt-5 border-top">
+    <div class="container text-center">
+        <p class="mb-1">&copy; @DateTime.Now.Year CRMWebApp. All rights reserved.</p>
+        <a asp-page="/Privacy" class="text-decoration-none text-primary fw-semibold">
+            Privacy Policy
+        </a>
+    </div>
+</footer>
+
+
+@section Scripts {
+    <script>
+                (function () {
+            const dismiss = (id, ms) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                setTimeout(() => {
+                    try {
+                        if (window.bootstrap && bootstrap.Alert) {
+                            bootstrap.Alert.getOrCreateInstance(el).close();
+                        } else { el.classList.remove('show'); setTimeout(() => el.remove(), 200); }
+                    } catch { el.remove(); }
+                }, ms);
+            };
+            dismiss('autoDismiss', 4000);
+            dismiss('autoDismissError', 5000);
+        })();
+    </script>
+}

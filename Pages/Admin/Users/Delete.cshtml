@@ -1,0 +1,64 @@
+﻿@page "{id}"
+@model CRMWebApp.Pages.Admin.Users.DeleteModel
+@{
+    ViewData["Title"] = "Delete user";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Delete user</h2>
+
+    @if (Model.TargetUser is null)
+    {
+        <div class="alert alert-danger">User not found.</div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <h5 class="alert-heading mb-2">This action is permanent.</h5>
+            <p class="mb-2">
+                You are about to permanently delete user:
+                <strong>@Model.TargetUser.Email</strong>
+                @(string.IsNullOrWhiteSpace(Model.TargetUser.FullName) ? "" : $" (@Model.TargetUser.FullName)")
+            </p>
+            <ul class="mb-0">
+                <li>Clients to reassign: <strong>@Model.ClientsCount</strong></li>
+                <li>Deals to reassign: <strong>@Model.DealsCount</strong></li>
+                <li>Interactions to reassign: <strong>@Model.InteractionsCount</strong></li>
+            </ul>
+            <small class="text-muted d-block mt-2">
+                All above records will be reassigned to the System account (deleted user).
+            </small>
+        </div>
+
+        @if (Model.IsLastAdmin)
+        {
+            <div class="alert alert-danger">
+                You cannot delete the last remaining Admin.
+            </div>
+            <a asp-page="./Index" class="btn btn-outline-secondary">Back</a>
+        }
+        else
+        {
+            <form method="post" class="mt-3">
+                <input type="hidden" asp-for="Id" />
+                <button class="btn btn-danger" asp-page-handler="Confirm">
+                    Yes, delete permanently
+                </button>
+                <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </form>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll(".alert").forEach(el => {
+                if (el.classList.contains("show")) {
+                    var a = new bootstrap.Alert(el);
+                    a.close();
+                }
+            });
+        }, 4000);
+    </script>
+}

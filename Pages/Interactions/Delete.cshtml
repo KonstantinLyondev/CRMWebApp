@@ -1,0 +1,52 @@
+﻿@page "{id:int}" 
+@model CRMWebApp.Pages.Interactions.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Delete</h1>
+
+    <h5 class="mb-4 text-danger">Are you sure you want to delete this?</h5>
+
+    <div class="mb-4">
+        <h6 class="text-muted">Interaction</h6>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Date</dt>
+            <dd class="col-sm-9">@Model.Interaction.Date.ToString("M/d/yyyy h:mm tt")</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@Model.Interaction.Type</dd>
+
+            <dt class="col-sm-3">Comment</dt>
+            <dd class="col-sm-9">
+                @(string.IsNullOrWhiteSpace(Model.Interaction.Comment) ? "No comment" : Model.Interaction.Comment)
+            </dd>
+
+            <dt class="col-sm-3">Client</dt>
+            <dd class="col-sm-9">@Model.Interaction.Client?.Name</dd>
+
+            <dt class="col-sm-3">Deal</dt>
+            <dd class="col-sm-9">
+                @if (Model.Interaction.Deal != null)
+                {
+                    <a asp-page="/Deals/Details" asp-route-id="@Model.Interaction.Deal.Id">
+                        @Model.Interaction.Deal.Title
+                    </a>
+                }
+                else
+                {
+                    <span>No deal attached</span>
+                }
+            </dd>
+        </dl>
+    </div>
+
+    <form method="post" class="mt-5 d-flex gap-2">
+        <input type="hidden" asp-for="Interaction.Id" />
+        <button type="submit" class="btn btn-delete">Delete</button>
+        <a asp-page="./Index" class="btn btn-cancel">Back to List</a>
+    </form>
+</div>

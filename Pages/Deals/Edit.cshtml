@@ -1,0 +1,79 @@
+﻿@page
+@model CRMWebApp.Pages.Deals.EditModel
+@using CRMWebApp.Models
+
+@{
+    ViewData["Title"] = "Edit Deal";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Edit Deal</h1>
+
+    <div class="form-container">
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="Deal.Id" />
+
+            <div class="mb-3">
+                <label asp-for="Deal.Title" class="form-label"></label>
+                <input asp-for="Deal.Title" class="form-control" placeholder="Deal title" />
+                <span asp-validation-for="Deal.Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Deal.ClientId" class="form-label">Client</label>
+                <select asp-for="Deal.ClientId" asp-items="Model.ClientsList" class="form-select">
+                    <option value="">-- Select client --</option>
+                </select>
+                <span asp-validation-for="Deal.ClientId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Deal.Status" class="form-label"></label>
+                <select asp-for="Deal.Status" asp-items="Html.GetEnumSelectList<DealStatus>()" class="form-select"></select>
+                <span asp-validation-for="Deal.Status" class="text-danger"></span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Deal.Amount" class="form-label"></label>
+                    <input asp-for="Deal.Amount" class="form-control" />
+                    <span asp-validation-for="Deal.Amount" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Deal.Currency" class="form-label"></label>
+                    <input asp-for="Deal.Currency" class="form-control" />
+                    <span asp-validation-for="Deal.Currency" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-0">
+                <div class="col-md-6">
+                    <label asp-for="Deal.Probability" class="form-label"></label>
+                    <input asp-for="Deal.Probability" class="form-control" placeholder="0–100" />
+                    <span asp-validation-for="Deal.Probability" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Deal.CloseDate" class="form-label"></label>
+                    <input asp-for="Deal.CloseDate" class="form-control" type="date" />
+                    <span asp-validation-for="Deal.CloseDate" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3 mt-3">
+                <label asp-for="Deal.Notes" class="form-label"></label>
+                <textarea asp-for="Deal.Notes" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
+                <span asp-validation-for="Deal.Notes" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-save">Save</button>
+                <a asp-page="./Index" class="btn btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

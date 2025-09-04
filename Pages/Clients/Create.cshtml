@@ -1,0 +1,69 @@
+﻿@page
+@model CRMWebApp.Pages.Clients.CreateModel
+
+@{
+    ViewData["Title"] = "Create Client";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-5 text-center">Create Client</h1>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            Please fix the errors below and try again.
+        </div>
+    }
+
+    <div class="form-container">
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Client.Name" class="form-label"></label>
+                <input asp-for="Client.Name" class="form-control" placeholder="Enter full name" />
+                <span asp-validation-for="Client.Name" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.Email" class="form-label"></label>
+                <input asp-for="Client.Email" class="form-control" placeholder="e.g. john.doe@example.com" />
+                <span asp-validation-for="Client.Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.Phone" class="form-label"></label>
+                <input asp-for="Client.Phone" class="form-control" placeholder="+359 888 123 456" />
+                <span asp-validation-for="Client.Phone" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.City" class="form-label"></label>
+                <input asp-for="Client.City" class="form-control" placeholder="e.g. Sofia" />
+                <span asp-validation-for="Client.City" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.Address" class="form-label"></label>
+                <input asp-for="Client.Address" class="form-control" placeholder="Street, Building..." />
+                <span asp-validation-for="Client.Address" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Client.Company" class="form-label"></label>
+                <input asp-for="Client.Company" class="form-control" placeholder="e.g. ABC Ltd." />
+                <span asp-validation-for="Client.Company" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="Client.IsVip" />
+                <label class="form-check-label" asp-for="Client.IsVip">VIP client</label>
+            </div>
+
+            <button type="submit" class="btn btn-save">Create</button>
+            <a asp-page="./Index" class="btn btn-cancel">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

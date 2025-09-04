@@ -1,0 +1,44 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.Manage.PersonalDataModel
+@{
+    ViewData["Title"] = "Personal Data";
+    ViewData["ActivePage"] = CRMWebApp.Areas.Identity.Pages.Account.Manage.ManageNavPages.PersonalData;
+    Layout = "/Areas/Identity/Pages/Account/Manage/_Layout.cshtml";
+}
+
+<div class="mb-4">
+    <h2 class="h3 fw-bold mb-2">Personal Data</h2>
+    <p class="text-muted mb-0">
+        Your account contains personal data that you have given us. From here you can
+        <strong>download</strong> a copy of that data.
+    </p>
+</div>
+
+@if (TempData["ErrorMessage"] is string err && !string.IsNullOrWhiteSpace(err))
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-4" role="alert">
+        @err
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body">
+        <h3 class="h5 fw-semibold mb-2">Download your data</h3>
+        <p class="text-muted mb-3">
+            Get a machine-readable export (JSON) of your profile and objects you created.
+        </p>
+        <form asp-page="DownloadPersonalData" method="post" class="d-inline">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-download"></i> Download personal data
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="alert alert-warning d-flex align-items-center gap-2 mt-4 mb-0" role="alert">
+    <span class="fw-semibold">Note:</span>
+    <span>
+        Operational records required for system integrity may be retained in anonymized form.
+    </span>
+</div>

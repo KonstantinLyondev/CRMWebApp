@@ -1,0 +1,152 @@
+﻿@page
+@model CRMWebApp.Pages.Deals.DeleteModel
+@using CRMWebApp.Models
+
+@{
+    ViewData["Title"] = "Delete deal";
+}
+
+@section Styles {
+    <style>
+        #confirmDeleteDealModal {
+            z-index: 3000 !important;
+        }
+
+        .modal-backdrop {
+            display: none !important;
+        }
+
+        .impersonation-bar {
+            z-index: 1030 !important;
+        }
+
+        .modal-open .impersonation-bar {
+            display: none !important;
+        }
+
+        #confirmDeleteDealModal .modal-footer .btn {
+            border-radius: 9999px;
+            font-weight: 600;
+            padding: 0.48rem 1rem;
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+    </style>
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Delete deal</h1>
+
+    <div class="alert alert-warning">
+        <strong>Warning:</strong> This will remove the deal from your lists.
+    </div>
+
+    <div class="form-container">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">@Model.Deal.Title</dd>
+
+            <dt class="col-sm-3">Client</dt>
+            <dd class="col-sm-9">@Model.Deal.Client?.Name</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                @{
+                    var badge = Model.Deal.Status switch
+                    {
+                        DealStatus.InProgress => "badge bg-info",
+                        DealStatus.Successful => "badge bg-success",
+                        DealStatus.Failed => "badge bg-danger",
+                        _ => "badge bg-secondary"
+                    };
+                    var text = Model.Deal.Status switch
+                    {
+                        DealStatus.InProgress => "In Progress",
+                        DealStatus.Successful => "Successful",
+                        DealStatus.Failed => "Failed",
+                        _ => Model.Deal.Status.ToString()
+                    };
+                }
+                <span class="@badge">@text</span>
+            </dd>
+
+            <dt class="col-sm-3">Amount</dt>
+            <dd class="col-sm-9">@Model.Deal.Amount.ToString("N2") @Model.Deal.Currency</dd>
+
+            <dt class="col-sm-3">Probability</dt>
+            <dd class="col-sm-9">@Model.Deal.Probability%</dd>
+
+            <dt class="col-sm-3">Close date</dt>
+            <dd class="col-sm-9">@Model.Deal.CloseDate?.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-3">Notes</dt>
+            <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Deal.Notes) ? "—" : Model.Deal.Notes)</dd>
+        </dl>
+    </div>
+
+    <form id="deleteDealForm" method="post" class="mt-3">
+        <input type="hidden" asp-for="Deal.Id" />
+
+        @if (Model.CanDelete)
+        {
+            <button type="button"
+                    class="btn btn-delete btn-form"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteDealModal">
+                Delete
+            </button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-delete btn-form" disabled title="You don't have permission to delete this deal.">
+                Delete
+            </button>
+        }
+
+        <a asp-page="./Index" class="btn btn-cancel btn-form ms-2">Back to list</a>
+    </form>
+</div>
+
+<div class="modal fade"
+     id="confirmDeleteDealModal"
+     tabindex="-1"
+     aria-labelledby="confirmDeleteDealLabel"
+     aria-hidden="true"
+     data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteDealLabel">Confirm deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-2">
+                    Are you sure you want to delete deal
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Deal.Title) ? $"Deal #{Model.Deal.Id}" : Model.Deal.Title)</strong>?
+                </p>
+                <p class="mb-0">
+                    This will also remove <strong>@Model.InteractionsCount</strong> interaction(s) linked to this deal.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-lg rounded-pill"
+                        data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger btn-lg rounded-pill"
+                        onclick="document.getElementById('deleteDealForm').submit();">
+                    Delete anyways
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+}

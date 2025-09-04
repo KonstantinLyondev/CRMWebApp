@@ -1,0 +1,23 @@
+﻿@page
+@model CRMWebApp.Areas.Identity.Pages.Account.ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirm email";
+}
+
+<div class="container py-5 text-center">
+    <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
+    <h2 class="h4">Redirecting…</h2>
+    <p class="text-muted">
+        Your email was confirmed successfully. You will be redirected shortly.
+        <br />
+        <a class="link-primary" href="@Model?.ReturnUrl">Click here if you are not redirected</a>.
+    </p>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(function () {
+            window.location.href = '@(Model?.ReturnUrl ?? Url.Page("/Index"))';
+        }, 1000);
+    </script>
+}

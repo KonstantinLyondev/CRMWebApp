@@ -1,0 +1,203 @@
+﻿@page "{id:int}"
+@using CRMWebApp.Models
+@model CRMWebApp.Pages.Clients.DetailsModel
+
+@{
+    ViewData["Title"] = "Client Details";
+}
+
+<style>
+    .wrap-cell {
+        white-space: normal;
+        word-break: normal; 
+        overflow-wrap: normal; 
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex align-items-center mb-3">
+        <h1 class="me-3 mb-0">Client Details</h1>
+        @if (Model.Client.IsVip)
+        {
+            <span class="badge bg-warning text-dark">VIP</span>
+        }
+    </div>
+    <div class="form-container">
+        <dl class="row">
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@Model.Client.Name</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Client.Email</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">@Model.Client.Phone</dd>
+
+            <dt class="col-sm-3">City</dt>
+            <dd class="col-sm-9">@Model.Client.City</dd>
+
+            <dt class="col-sm-3">Address</dt>
+            <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Client.Address) ? "-" : Model.Client.Address)</dd>
+
+            <dt class="col-sm-3">Company</dt>
+            <dd class="col-sm-9">@Model.Client.Company</dd>
+
+            @* *@
+            @if (User.IsInRole("Admin"))
+            {
+                <dt class="col-sm-3">Created by</dt>
+                <dd class="col-sm-9">
+                    @(Model.Client?.CreatedBy?.Email ?? "—")
+                </dd>
+            }
+        </dl>
+
+        <div class="d-flex gap-2 mt-3">
+            <a asp-page="./Edit" asp-route-id="@Model.Client.Id" class="btn btn-edit btn-edit-details">Edit</a>
+            <a asp-page="./Index" class="btn btn-cancel">Back to List</a>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h4 mb-0">Interactions</h2>
+        <a asp-page="/Interactions/Create" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-outline-primary">
+            + Add Interaction
+        </a>
+    </div>
+
+    @if (Model.Interactions?.Count > 0)
+    {
+        <div class="table-responsive mb-4">
+            <table class="table table-striped align-middle">
+                <thead class="custom-header">
+                    <tr>
+                        <th style="width: 120px;">Date</th>
+                        <th style="width: 160px;">Type</th>
+                        <th>Comment</th>
+                        <th style="width: 260px;">Linked Deal</th>
+                        <th style="width: 140px;">Open</th>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <th style="width: 200px;">Created by</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in Model.Interactions)
+                    {
+                        <tr>
+                            <td>@it.Date.ToString("d")</td>
+                            <td>@(string.IsNullOrWhiteSpace(it.Type) ? "-" : it.Type)</td>
+                            <td class="wrap-cell">@(string.IsNullOrWhiteSpace(it.Comment) ? "-" : it.Comment)</td>
+                            <td class="wrap-cell">
+                                @if (it.DealId.HasValue)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(it.Deal?.Title))
+                                    {
+                                        <a asp-page="/Deals/Details" asp-route-id="@it.DealId">@it.Deal!.Title</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (it.DealId.HasValue)
+                                {
+                                    <a asp-page="/Deals/Details" asp-route-id="@it.DealId" class="btn btn-sm btn-details">Open</a>
+                                }
+                                else
+                                {
+                                    <a asp-page="/Interactions/Details" asp-route-id="@it.Id" class="btn btn-sm btn-details">Open</a>
+                                }
+                            </td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td>@(it.CreatedBy?.FullName ?? it.CreatedBy?.Email ?? "—")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border mb-4">No interactions yet.</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h4 mb-0">Deals</h2>
+        <a asp-page="/Deals/Create" asp-route-clientId="@Model.Client.Id" class="btn btn-sm btn-outline-success">
+            + Create Deal
+        </a>
+    </div>
+
+    @if (Model.Deals?.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="custom-header">
+                    <tr>
+                        <th>Title</th>
+                        <th style="width: 160px;">Status</th>
+                        <th style="width: 140px;">Amount</th>
+                        <th style="width: 110px;">Currency</th>
+                        <th style="width: 140px;">Probability</th>
+                        <th style="width: 150px;">Close date</th>
+                        <th>Notes</th>
+                        <th style="width: 140px;">Open</th>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <th style="width: 200px;">Created by</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var d in Model.Deals)
+                    {
+                        <tr>
+                            <td class="wrap-cell">@(string.IsNullOrWhiteSpace(d.Title) ? "-" : d.Title)</td>
+                            <td>
+                                @switch (d.Status)
+                                {
+                                    case DealStatus.Successful:
+                                        <span class="badge bg-success">Successful</span>
+                                        break;
+                                    case DealStatus.Failed:
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    case DealStatus.InProgress:
+                                    default:
+                                        <span class="badge bg-info text-dark">In Progress</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@d.Amount.ToString("0.00")</td>
+                            <td>@(string.IsNullOrWhiteSpace(d.Currency) ? "-" : d.Currency)</td>
+                            <td>@d.Probability.ToString("0.#")%</td>
+                            <td>@(d.CloseDate.HasValue? d.CloseDate.Value.ToString("yyyy-MM-dd") : "-")</td>
+                            <td class="wrap-cell">@(string.IsNullOrWhiteSpace(d.Notes) ? "-" : d.Notes)</td>
+                            <td>
+                                <a asp-page="/Deals/Details" asp-route-id="@d.Id" class="btn btn-sm btn-details">Open</a>
+                            </td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td>@(d.CreatedBy?.FullName ?? d.CreatedBy?.Email ?? "—")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border">No deals yet.</div>
+    }
+</div>
