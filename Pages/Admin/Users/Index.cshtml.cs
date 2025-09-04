@@ -241,48 +241,18 @@ namespace CRMWebApp.Pages.Admin.Users
             return RedirectToPage();
         }
 
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostDeleteAsync(string id)
         {
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                Error = "Invalid user id.";
-                return RedirectToPage();
-            }
+            if (string.IsNullOrWhiteSpace(id)) return RedirectToPage();
 
             var me = await _userManager.GetUserAsync(User);
             if (me == null) return Forbid();
-            if (me.Id == id)
-            {
-                Error = "You cannot delete your own account.";
-                return RedirectToPage();
-            }
-
-            var target = await _userManager.FindByIdAsync(id);
-            if (target == null)
-            {
-                Error = "User not found.";
-                return RedirectToPage();
-            }
-
-            if (await _userManager.IsInRoleAsync(target, "Admin"))
-            {
-                var admins = await _userManager.GetUsersInRoleAsync("Admin");
-                if (admins.Count <= 1)
-                {
-                    Error = "You cannot delete the last remaining Admin.";
-                    return RedirectToPage();
-                }
-            }
+            if (me.Id == id) { Error = "You cannot delete your own account."; return RedirectToPage(); }
 
             var (ok, err) = await _lifecycle.HardDeleteAsync(id, me.Id);
-            if (!ok)
-            {
-                Error = string.IsNullOrWhiteSpace(err) ? "Delete failed." : err;
-                return RedirectToPage();
-            }
+            if (!ok) { Error = err; return RedirectToPage(); }
 
-            Success = $"User '{target.Email}' was permanently deleted.";
+            Success = "User was permanently deleted.";
             return RedirectToPage();
         }
 
