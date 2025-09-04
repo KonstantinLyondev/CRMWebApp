@@ -1,0 +1,57 @@
+﻿@page
+@model CRMWebApp.Pages.Admin.Users.CreateModel
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-3">Create User</h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Input.Email" class="form-label"></label>
+                    <input asp-for="Input.Email" class="form-control" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Input.FullName" class="form-label"></label>
+                    <input asp-for="Input.FullName" class="form-control" />
+                    <span asp-validation-for="Input.FullName" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input asp-for="Input.MakeAdmin" class="form-check-input" />
+                        <label asp-for="Input.MakeAdmin" class="form-check-label"></label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input asp-for="Input.SendPasswordSetup" class="form-check-input" />
+                        <label asp-for="Input.SendPasswordSetup" class="form-check-label"></label>
+                    </div>
+                    <div class="form-text">
+                        The user will receive an email confirmation link. If this option is on, they’ll also get a password setup link.
+                    </div>
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <a asp-page="./Index" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill">
+                        <i class="bi bi-person-plus"></i> Create
+                    </button>
+                </div>
+
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

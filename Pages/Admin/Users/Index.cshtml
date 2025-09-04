@@ -44,6 +44,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
+
     @if (!string.IsNullOrEmpty(Model.Error))
     {
         <div id="autoDismiss" class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -53,13 +54,17 @@
     }
 
     <div class="row g-3 mb-3">
-        <div class="col-md-6"></div>
         <div class="col-md-6">
-            <input id="searchUser" class="form-control" placeholder="Search by email..."
-                   list="emailSuggestions" autocomplete="off" />
+            <a asp-page="./Create" class="btn btn-success rounded-pill">
+                <i class="bi bi-person-plus"></i> Create User
+            </a>
+        </div>
+        <div class="col-md-6">
+            <input id="searchUser" class="form-control" placeholder="Search by email..." list="emailSuggestions" autocomplete="off" />
             <datalist id="emailSuggestions"></datalist>
         </div>
     </div>
+
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -144,31 +149,35 @@
 @section Scripts {
     <script>
         document.getElementById('makeAdminModal')
-          .addEventListener('show.bs.modal', function (event) {
-            const btn = event.relatedTarget;
-            document.getElementById('makeAdminUserId').value = btn.getAttribute('data-user-id');
-            document.getElementById('makeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
-          });
+            .addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                document.getElementById('makeAdminUserId').value = btn.getAttribute('data-user-id');
+                document.getElementById('makeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
+            });
 
         document.getElementById('removeAdminModal')
-          .addEventListener('show.bs.modal', function (event) {
-            const btn = event.relatedTarget;
-            document.getElementById('removeAdminUserId').value = btn.getAttribute('data-user-id');
-            document.getElementById('removeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
-          });
+            .addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                document.getElementById('removeAdminUserId').value = btn.getAttribute('data-user-id');
+                document.getElementById('removeAdminUserEmail').textContent = btn.getAttribute('data-user-email');
+            });
 
         document.addEventListener('submit', function (e) {
-          const f = e.target.closest('form.needs-loading');
-          if (!f) return;
-          const btn = f.querySelector('button[type="submit"]');
-          if (!btn) return;
-          const text = btn.querySelector('.btn-text'); const spin = btn.querySelector('.btn-loading');
-          if (text && spin) { text.classList.add('d-none'); spin.classList.remove('d-none'); }
-          btn.setAttribute('disabled', 'disabled');
+            const f = e.target.closest('form.needs-loading');
+            if (!f) return;
+            const btn = f.querySelector('button[type="submit"]');
+            if (!btn) return;
+            const text = btn.querySelector('.btn-text');
+            const spin = btn.querySelector('.btn-loading');
+            if (text && spin) {
+                text.classList.add('d-none');
+                spin.classList.remove('d-none');
+            }
+            btn.setAttribute('disabled', 'disabled');
         });
 
         setTimeout(() => {
-          document.querySelectorAll("#autoDismiss").forEach(el => new bootstrap.Alert(el).close());
+            document.querySelectorAll("#autoDismiss").forEach(el => new bootstrap.Alert(el).close());
         }, 4000);
 
         const searchInput = document.getElementById('searchUser');
@@ -176,7 +185,10 @@
         const tbody = document.getElementById('usersTableBody');
 
         async function loadSuggestions(term) {
-            if (!term) { suggestions.innerHTML = ''; return; }
+            if (!term) {
+                suggestions.innerHTML = '';
+                return;
+            }
             const resp = await fetch(`?handler=Autocomplete&term=${encodeURIComponent(term)}`, { cache: 'no-store' });
             if (!resp.ok) return;
             const list = await resp.json();
@@ -204,6 +216,7 @@
                 doFilter();
             }, 150);
         });
+
         searchInput.addEventListener('change', doFilter);
     </script>
 }
